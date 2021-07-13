@@ -22,3 +22,19 @@ func (e *ApiError) Error() string {
 func (e *ApiError) Unwrap() error {
 	return e.errorType
 }
+
+type NoResults struct {
+	error error
+}
+
+func NewNoResults() *NoResults {
+	return &NoResults{error: httperrors.ErrNotFound}
+}
+
+func (e *NoResults) Error() string {
+	return fmt.Sprintf("no results returned from spotify: %s", e.error.Error())
+}
+
+func (e *NoResults) Unwrap() error {
+	return e.error
+}

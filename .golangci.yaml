@@ -90,6 +90,7 @@ linters:
     - unused
     - varcheck
     - whitespace
+    - nlreturn
 
   # don't enable:
   # - asciicheck

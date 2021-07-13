@@ -6,10 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/zmb3/spotify"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -21,6 +25,7 @@ const (
 type Client struct {
 	encodedCredentials string
 	httpClient         *http.Client
+	spotiClient        spotify.Client
 }
 
 func NewClient(client *http.Client) *Client {
@@ -28,6 +33,19 @@ func NewClient(client *http.Client) *Client {
 		httpClient:         client,
 		encodedCredentials: encodeCredentials(getCredentials()),
 	}
+}
+
+func (c *Client) Authenticate() error {
+	token, err := c.GetToken()
+	if err != nil {
+		return err
+	}
+
+	authClient := spotify.NewAuthenticator("")
+	spotiClient := authClient.NewClient(&oauth2.Token{AccessToken: token})
+	c.spotiClient = spotiClient
+
+	return nil
 }
 
 func (c *Client) GetToken() (string, error) {
@@ -89,4 +107,37 @@ func encodeCredentials(clientID, clientSecret string) string {
 	encoded := base64.StdEncoding.EncodeToString([]byte(plain))
 
 	return encoded
+}
+
+func (c *Client) SearchForTrack(searchQuery string) (spotify.FullTrack, error) {
+	res, err := c.spotiClient.Search(searchQuery, spotify.SearchTypeTrack)
+	if err != nil {
+		log.Printf("error in first call to api: %v", err.Error())
+		res, err = c.retrySearch(searchQuery)
+		if err != nil {
+			log.Printf("error after retry: %v", err.Error())
+
+			return spotify.FullTrack{}, NewApiError(err)
+		}
+	}
+
+	if res.Tracks == nil {
+		return spotify.FullTrack{}, NewNoResults()
+	}
+
+	tracks := res.Tracks.Tracks
+	if len(tracks) == 0 {
+		return spotify.FullTrack{}, NewNoResults()
+	}
+
+	return tracks[0], nil
+}
+
+func (c *Client) retrySearch(searchQuery string) (*spotify.SearchResult, error) {
+	err := c.Authenticate()
+	if err != nil {
+		return nil, NewApiError(err)
+	}
+
+	return c.spotiClient.Search(searchQuery, spotify.SearchTypeTrack)
 }
