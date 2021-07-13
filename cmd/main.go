@@ -3,36 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zmb3/spotify"
-	"golang.org/x/oauth2"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/zmb3/spotify"
+	"golang.org/x/oauth2"
 )
-
-const (
-	host   = "api.music.yandex.net"
-	port   = 443
-	scheme = "https"
-)
-
-type YandexResponse struct {
-	Result []YandexResult `json:"result"`
-}
-
-type YandexResult struct {
-	Title   string         `json:"title"`
-	Artists []YandexArtist `json:"artists"`
-	Albums  []YandexAlbum  `json:"albums"`
-}
-
-type YandexArtist struct {
-	Name string `json:"name"`
-}
-
-type YandexAlbum struct {
-	Title string `json:"title"`
-}
 
 func main() {
 	resp, err := http.Get(fmt.Sprintf("%s://%s:%d/tracks/86349653", scheme, host, port))
