@@ -47,6 +47,9 @@ linters-settings:
     locale: US
   stylecheck:
     checks: ["all", "-ST1003"]
+  gosec:
+    excludes:
+      - G101
 
 linters:
   disable-all: true
