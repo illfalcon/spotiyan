@@ -45,11 +45,15 @@ func (b *Bot) Listen() error {
 		trackID, err := yandex.GetTrackIDFromURL(update.Message.Text)
 		if err != nil {
 			b.SendWithRetry(tgbotapi.NewMessage(update.Message.Chat.ID, httperrors.WriteErrorAsString(err)))
+
+			continue
 		}
 
 		result, err := b.service.Translate(trackID)
 		if err != nil {
 			b.SendWithRetry(tgbotapi.NewMessage(update.Message.Chat.ID, httperrors.WriteErrorAsString(err)))
+
+			continue
 		}
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, result)
