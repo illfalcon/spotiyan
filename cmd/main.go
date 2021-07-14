@@ -4,22 +4,33 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/joho/godotenv"
 
 	"github.com/illfalcon/spotiyan/internal/spoti"
+	"github.com/illfalcon/spotiyan/internal/yandex"
 )
 
 func main() {
 	_ = godotenv.Load()
-	client := spoti.NewClient(&http.Client{})
-	err := client.Authenticate()
+	httpClient := &http.Client{Timeout: time.Minute}
+	spotiClient := spoti.NewClient(httpClient)
+	err := spotiClient.Authenticate()
 	if err != nil {
 		log.Fatal(err)
 	}
-	res, err := client.SearchForTrack("Running Away VANO 3000 BADBADNOTGOOD Samuel T. Herring Running Away")
+
+	yaClient := yandex.NewClient(httpClient)
+
+	res, err := yaClient.GetTrackInfo(50290303)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print(res.SimpleTrack.ExternalURLs)
+
+	track, err := spotiClient.SearchForTrack(fmt.Sprintf("%v %v %v", res.Title, res.Artists, res.Albums))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Print(track.SimpleTrack.ExternalURLs["spotify"])
 }
