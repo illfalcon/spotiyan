@@ -1,11 +1,13 @@
 package telegram
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/illfalcon/spotiyan/internal/translator"
 	"log"
 	"os"
-	"strconv"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/illfalcon/spotiyan/internal/translator"
+	"github.com/illfalcon/spotiyan/internal/yandex"
 )
 
 type Bot struct {
@@ -55,7 +57,7 @@ func (b *Bot) Listen() error {
 		// Now that we know we've gotten a new message, we can construct a
 		// reply! We'll take the Chat ID and Text from the incoming message
 		// and use it to create a new message.
-		trackID, _ := strconv.ParseInt(update.Message.Text, 10, 64)
+		trackID, _ := yandex.GetTrackIDFromURL(update.Message.Text)
 		result, _ := b.service.Translate(trackID)
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, result)
 		// We'll also say that this message is a reply to the previous message.

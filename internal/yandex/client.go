@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -54,4 +56,19 @@ func createRequestToGetTrackInfo(trackID int64) (*http.Request, error) {
 		fmt.Sprintf("%s://%s:%d/tracks/%d", scheme, host, port, trackID),
 		nil,
 	)
+}
+
+func GetTrackIDFromURL(url string) (int64, error) {
+	pieces := strings.Split(url, "/")
+	if len(pieces) == 0 {
+		return 0, NewBadRequest("invalid url for yandex music")
+	}
+
+	trackIDStr := pieces[len(pieces)-1]
+	trackID, err := strconv.ParseInt(trackIDStr, 10, 64)
+	if err != nil {
+		return 0, NewBadRequest("invalid url for yandex music")
+	}
+
+	return trackID, nil
 }

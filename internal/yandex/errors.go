@@ -38,3 +38,20 @@ func (e *ApiError) Error() string {
 func (e *ApiError) Unwrap() error {
 	return e.errorType
 }
+
+type BadRequestError struct {
+	errorType error
+	msg       string
+}
+
+func NewBadRequest(msg string) *BadRequestError {
+	return &BadRequestError{msg: msg, errorType: httperrors.ErrBadRequest}
+}
+
+func (e *BadRequestError) Error() string {
+	return e.msg
+}
+
+func (e *BadRequestError) Unwrap() error {
+	return e.errorType
+}

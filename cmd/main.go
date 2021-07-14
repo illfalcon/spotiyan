@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/illfalcon/spotiyan/internal/telegram"
 	"log"
 	"net/http"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/illfalcon/spotiyan/internal/spoti"
+	"github.com/illfalcon/spotiyan/internal/telegram"
 	"github.com/illfalcon/spotiyan/internal/translator"
 	"github.com/illfalcon/spotiyan/internal/yandex"
 )
