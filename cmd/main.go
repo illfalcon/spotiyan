@@ -1,12 +1,9 @@
 package main
 
 import (
-	"context"
+	"github.com/illfalcon/spotiyan/internal/telegram"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -42,25 +39,33 @@ func main() {
 
 	r.Get("/translate/{yandexTrackID}", handler.HandleTranslate)
 
-	srv := &http.Server{Addr: ":8080", Handler: r}
-	stopAppCh := make(chan struct{})
-	sigquit := make(chan os.Signal, 1)
-	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
-	signal.Notify(sigquit, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		s := <-sigquit
-		log.Printf("captured signal: %v\n", s)
-		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Fatalf("could not shutdown service: %s", err)
-		}
-		log.Printf("shut down gracefully")
-		stopAppCh <- struct{}{}
-	}()
+	//srv := &http.Server{Addr: ":8080", Handler: r}
+	//stopAppCh := make(chan struct{})
+	//sigquit := make(chan os.Signal, 1)
+	//signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
+	//signal.Notify(sigquit, syscall.SIGINT, syscall.SIGTERM)
+	//go func() {
+	//	s := <-sigquit
+	//	log.Printf("captured signal: %v\n", s)
+	//	if err := srv.Shutdown(context.Background()); err != nil {
+	//		log.Fatalf("could not shutdown service: %s", err)
+	//	}
+	//	log.Printf("shut down gracefully")
+	//	stopAppCh <- struct{}{}
+	//}()
+	//
+	//log.Println("started server")
+	//if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	//	log.Fatal(err)
+	//}
+	//
+	//<-stopAppCh
 
-	log.Println("started server")
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	tgBot := telegram.NewBot(service)
+	err = tgBot.Init()
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	<-stopAppCh
+	_ = tgBot.Listen()
 }

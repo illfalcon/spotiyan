@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/go-chi/chi/v5 v5.0.3 // indirect
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.0.0-rc1.0.20210608165722-fb1de2fb48dd // indirect
 	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/zmb3/spotify v1.3.0
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
