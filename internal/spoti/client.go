@@ -141,3 +141,12 @@ func (c *Client) retrySearch(searchQuery string) (*spotify.SearchResult, error) 
 
 	return c.spotiClient.Search(searchQuery, spotify.SearchTypeTrack)
 }
+
+func GetShareURL(track *spotify.FullTrack) (string, error) {
+	externalURL, ok := track.ExternalURLs["spotify"]
+	if !ok {
+		return "", NewNoResults()
+	}
+
+	return externalURL, nil
+}

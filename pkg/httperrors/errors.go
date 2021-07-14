@@ -7,6 +7,7 @@ import (
 const (
 	NotFoundCode = iota
 	DependencyErrorCode
+	BadRequest
 )
 
 type HTTPError struct {
@@ -25,4 +26,5 @@ func (e *HTTPError) Error() string {
 var (
 	ErrNotFound   = NewHTTPError(NotFoundCode, "not found")
 	ErrDependency = NewHTTPError(DependencyErrorCode, "dependency error")
+	ErrBadRequest = NewHTTPError(BadRequest, "bad request")
 )

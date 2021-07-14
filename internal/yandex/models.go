@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -58,4 +59,8 @@ func concatArtists(artists []Artist) string {
 	}
 
 	return strings.Join(titles, " ")
+}
+
+func (t Track) String() string {
+	return fmt.Sprintf("%v %v %v", t.Title, t.Albums, t.Artists)
 }
