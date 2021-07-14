@@ -57,6 +57,7 @@ func main() {
 		stopAppCh <- struct{}{}
 	}()
 
+	log.Println("started server")
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

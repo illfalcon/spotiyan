@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/illfalcon/spotiyan/pkg/httperrors"
 )
 
 type Handler struct {
@@ -21,8 +23,7 @@ func (h *Handler) HandleTranslate(w http.ResponseWriter, r *http.Request) {
 	yandexTrackIDInt, err := strconv.ParseInt(yandexTrackID, 10, 64)
 	if err != nil {
 		log.Printf("incorrect track id: %v", yandexTrackID)
-		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("incorrect yandex track id"))
+		httperrors.WriteError(err, w)
 
 		return
 	}
@@ -30,12 +31,10 @@ func (h *Handler) HandleTranslate(w http.ResponseWriter, r *http.Request) {
 	shareURL, err := h.translator.Translate(yandexTrackIDInt)
 	if err != nil {
 		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte("err"))
+		httperrors.WriteError(err, w)
 
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(shareURL))
 }
