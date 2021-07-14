@@ -30,7 +30,8 @@ func main() {
 
 	yaClient := yandex.NewClient(httpClient)
 
-	server := translator.NewServer(spotiClient, yaClient)
+	service := translator.NewService(spotiClient, yaClient)
+	handler := translator.NewHandler(service)
 
 	r := chi.NewRouter()
 
@@ -39,7 +40,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(time.Minute))
 
-	r.Get("/translate/{yandexTrackID}", server.HandleTranslate)
+	r.Get("/translate/{yandexTrackID}", handler.HandleTranslate)
 
 	srv := &http.Server{Addr: ":3000", Handler: r}
 	stopAppCh := make(chan struct{})
@@ -50,7 +51,7 @@ func main() {
 		s := <-sigquit
 		log.Printf("captured signal: %v\n", s)
 		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Fatalf("could not shutdown server: %s", err)
+			log.Fatalf("could not shutdown service: %s", err)
 		}
 		log.Printf("shut down gracefully")
 		stopAppCh <- struct{}{}
