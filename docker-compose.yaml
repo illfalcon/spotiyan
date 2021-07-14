@@ -4,4 +4,4 @@ services:
     build: .
     ports:
       - "8080:8080"
-    command: ["/go/bin/spotiyan"]
+    restart: always
