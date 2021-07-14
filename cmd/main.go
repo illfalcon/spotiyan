@@ -42,7 +42,7 @@ func main() {
 
 	r.Get("/translate/{yandexTrackID}", handler.HandleTranslate)
 
-	srv := &http.Server{Addr: ":3000", Handler: r}
+	srv := &http.Server{Addr: ":8080", Handler: r}
 	stopAppCh := make(chan struct{})
 	sigquit := make(chan os.Signal, 1)
 	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
