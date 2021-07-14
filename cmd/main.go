@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -37,5 +41,24 @@ func main() {
 
 	r.Get("/translate/{yandexTrackID}", server.HandleTranslate)
 
-	http.ListenAndServe(":3000", r)
+	srv := &http.Server{Addr: ":3000", Handler: r}
+	stopAppCh := make(chan struct{})
+	sigquit := make(chan os.Signal, 1)
+	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
+	signal.Notify(sigquit, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		s := <-sigquit
+		log.Printf("captured signal: %v\n", s)
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.Fatalf("could not shutdown server: %s", err)
+		}
+		log.Printf("shut down gracefully")
+		stopAppCh <- struct{}{}
+	}()
+
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
+
+	<-stopAppCh
 }
