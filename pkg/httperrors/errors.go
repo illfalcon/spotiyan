@@ -43,3 +43,12 @@ func WriteError(err error, writer io.Writer) {
 
 	_, _ = writer.Write([]byte(ErrInternal.Error()))
 }
+
+func WriteErrorAsString(err error) string {
+	var httpErr *HTTPError
+	if errors.As(err, &httpErr) {
+		return httpErr.Error()
+	}
+
+	return ErrInternal.Error()
+}
