@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -36,31 +34,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go herokuHack()
-
 	_ = tgBot.Listen()
-}
-
-func herokuHack() {
-	log.Print("starting server...")
-	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		name := os.Getenv("NAME")
-		if name == "" {
-			name = "World"
-		}
-		_, _ = fmt.Fprintf(w, "Hello %s!\n", name)
-	})
-
-	// Determine port for HTTP service.
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-		log.Printf("defaulting to port %s", port)
-	}
-
-	// Start HTTP server.
-	log.Printf("listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal(err)
-	}
 }
