@@ -3,9 +3,11 @@ package telegram
 import (
 	"log"
 	"os"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
+	"github.com/illfalcon/spotiyan/internal/spoti"
 	"github.com/illfalcon/spotiyan/internal/translator"
 	"github.com/illfalcon/spotiyan/internal/yandex"
 	"github.com/illfalcon/spotiyan/pkg/httperrors"
@@ -42,14 +44,7 @@ func (b *Bot) Listen() error {
 			continue
 		}
 
-		trackID, err := yandex.GetTrackIDFromURL(update.Message.Text)
-		if err != nil {
-			b.SendWithRetry(tgbotapi.NewMessage(update.Message.Chat.ID, httperrors.WriteErrorAsString(err)))
-
-			continue
-		}
-
-		result, err := b.service.Translate(trackID)
+		result, err := b.handleText(update.Message.Text)
 		if err != nil {
 			b.SendWithRetry(tgbotapi.NewMessage(update.Message.Chat.ID, httperrors.WriteErrorAsString(err)))
 
@@ -62,6 +57,28 @@ func (b *Bot) Listen() error {
 	}
 
 	return nil
+}
+
+func (b *Bot) handleText(text string) (string, error) {
+	if isSpotifyLink(text) {
+		spotifyID, err := spoti.GetTrackIDFromURL(text)
+		if err != nil {
+			return "", err
+		}
+
+		return b.service.TranslateSpotifyToYandex(spotifyID)
+	}
+
+	trackID, err := yandex.GetTrackIDFromURL(text)
+	if err != nil {
+		return "", err
+	}
+
+	return b.service.TranslateYandexToSpotify(trackID)
+}
+
+func isSpotifyLink(text string) bool {
+	return strings.Contains(text, "spotify")
 }
 
 func (b *Bot) SendWithRetry(message tgbotapi.MessageConfig) {
