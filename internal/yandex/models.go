@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Response struct {
+type GetTrackResponse struct {
 	Result []Result `json:"result"`
 }
 
@@ -29,7 +29,7 @@ type Track struct {
 	Albums  string
 }
 
-func (r Response) ToTrack() (Track, error) {
+func (r GetTrackResponse) ToTrack() (Track, error) {
 	if len(r.Result) == 0 {
 		return Track{}, NewNoResults()
 	}
@@ -63,4 +63,14 @@ func concatArtists(artists []Artist) string {
 
 func (t Track) String() string {
 	return fmt.Sprintf("%v %v %v", t.Title, t.Albums, t.Artists)
+}
+
+type SearchTrackResponse struct {
+	Result struct {
+		Tracks struct {
+			Results []struct {
+				ID int64 `json:"id"`
+			} `json:"results"`
+		} `json:"tracks"`
+	} `json:"result"`
 }

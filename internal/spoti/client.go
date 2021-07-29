@@ -150,3 +150,55 @@ func GetShareURL(track *spotify.FullTrack) (string, error) {
 
 	return externalURL, nil
 }
+
+func (c *Client) GetTrack(id string) (*spotify.FullTrack, error) {
+	res, err := c.spotiClient.GetTrack(spotify.ID(id))
+	if err != nil {
+		log.Printf("error in first call to api: %v", err.Error())
+		res, err = c.retryGetTrack(id)
+		if err != nil {
+			log.Printf("error after retry: %v", err.Error())
+
+			return nil, NewApiError(err)
+		}
+	}
+
+	if res.ID == "" {
+		return nil, NewNoResults()
+	}
+
+	return res, nil
+}
+
+func (c *Client) retryGetTrack(id string) (*spotify.FullTrack, error) {
+	err := c.Authenticate()
+	if err != nil {
+		return nil, NewApiError(err)
+	}
+
+	return c.spotiClient.GetTrack(spotify.ID(id))
+}
+
+func TrackToString(track *spotify.FullTrack) string {
+	return fmt.Sprintf("%v %v %v", track.Name, concatArtistNames(track.Artists), track.Album.Name)
+}
+
+func concatArtistNames(artists []spotify.SimpleArtist) string {
+	var names []string
+	for _, a := range artists {
+		names = append(names, a.Name)
+	}
+
+	return strings.Join(names, " ")
+}
+
+func GetTrackIDFromURL(urlString string) (string, error) {
+	pieces := strings.Split(urlString, "/")
+	if len(pieces) == 0 {
+		return "", NewBadRequest("invalid urlString for yandex music")
+	}
+
+	trackID := pieces[len(pieces)-1]
+
+	return trackID, nil
+}

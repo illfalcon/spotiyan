@@ -28,7 +28,7 @@ func (h *Handler) HandleTranslate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shareURL, err := h.translator.Translate(yandexTrackIDInt)
+	shareURL, err := h.translator.TranslateYandexToSpotify(yandexTrackIDInt)
 	if err != nil {
 		log.Print(err)
 		httperrors.WriteError(err, w)

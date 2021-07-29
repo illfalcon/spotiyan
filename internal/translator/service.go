@@ -16,7 +16,7 @@ func NewService(spotiClient *spoti.Client, yaClient *yandex.Client) *Service {
 	return &Service{spotiClient: spotiClient, yaClient: yaClient}
 }
 
-func (s *Service) Translate(yandexTrackID int64) (string, error) {
+func (s *Service) TranslateYandexToSpotify(yandexTrackID int64) (string, error) {
 	yandexTrack, err := s.yaClient.GetTrackInfo(yandexTrackID)
 	if err != nil {
 		return "", fmt.Errorf("error translating track with id %v: %w", yandexTrackID, err)
@@ -33,4 +33,18 @@ func (s *Service) Translate(yandexTrackID int64) (string, error) {
 	}
 
 	return shareURL, nil
+}
+
+func (s *Service) TranslateSpotifyToYandex(spotifyTrackID string) (string, error) {
+	spotifyTrack, err := s.spotiClient.GetTrack(spotifyTrackID)
+	if err != nil {
+		return "", fmt.Errorf("error translating track with id %v: %w", spotifyTrackID, err)
+	}
+
+	yandexTrackURL, err := s.yaClient.SearchTrackURL(spoti.TrackToString(spotifyTrack))
+	if err != nil {
+		return "", fmt.Errorf("error translating track with id %v: %w", spotifyTrackID, err)
+	}
+
+	return yandexTrackURL, nil
 }
